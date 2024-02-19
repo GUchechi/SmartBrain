@@ -1,0 +1,14 @@
+.form {
+  width: 700px;
+}
+
+input {
+    border: 1px solid #ccc; /* Add a border to provide visual feedback */
+    outline: none; /* Remove default outline */
+  }
+  
+  input:focus {
+    border-color: #007bff; /* Change border color when focused */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Add a box shadow for focus effect */
+  }
+  
