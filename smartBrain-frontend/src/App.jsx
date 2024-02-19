@@ -75,7 +75,7 @@ function App() {
         type: "circle",
       },
       size: {
-        value: { min: 1, max: 5 },
+        value: { min: 1, max: 4 },
       },
     },
     detectRetina: true,
