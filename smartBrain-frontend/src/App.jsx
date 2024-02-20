@@ -18,11 +18,30 @@ function App() {
     setInputLink(e.target.value);
   };
 
+  // Calculate Face Location
+  const calculateFaceLocation = (data) => {
+    const clarifaiFace =
+      data.outputs[0].data.regions[0].region_info.bounding_box;
+    const image = document.getElementById("inputImage");
+    const width = Number(image.width);
+    const height = Number(image.height);
+
+    return {
+      leftCol: clarifaiFace.left_col * width,
+      topRow: clarifaiFace.top_row * height,
+      rightCol: width - clarifaiFace.right_col * width,
+      bottomRow: height - clarifaiFace.bottom_row * height,
+    };
+  };
+
+  const displayFaceBox = (box) => {
+    console.log(box);
+    setBox(box);
+  };
+
   // Submit
   const onButtonSubmit = () => {
     setImageUrl(inputLink);
-
-    // Function
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     // In this section, we set the user authentication, user and app ID, model details, and the URL
@@ -86,7 +105,7 @@ function App() {
     )
       .then((response) => response.json())
       .then((result) => {
-        console.log(result);
+        displayFaceBox(calculateFaceLocation(result));
         const regions = result.outputs[0].data.regions;
 
         regions.forEach((region) => {
@@ -111,6 +130,7 @@ function App() {
       .catch((error) => console.log("error", error));
   };
 
+  // TParticles
   const particlesInit = useCallback(async (engine) => {
     await loadSlim(engine);
   }, []);
@@ -196,7 +216,7 @@ function App() {
         onButtonSubmit={onButtonSubmit}
         inputLink={inputLink}
       />
-      <FaceRecognition imageUrl={imageUrl} />
+      <FaceRecognition box={box} imageUrl={imageUrl} />
     </div>
   );
 }
