@@ -1,14 +1,14 @@
-import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
-import Logo from "./components/Logo/Logo";
-import Navigation from "./components/Navigation/Navigation";
-import "./App.css";
-import Rank from "./components/Rank/Rank";
 import { useCallback, useState } from "react";
-import Particles from "react-particles";
-import { loadSlim } from "tsparticles-slim";
-import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { loadSlim } from "tsparticles-slim";
+import Particles from "react-particles";
+import Navigation from "./components/Navigation/Navigation";
+import Logo from "./components/Logo/Logo";
+import Rank from "./components/Rank/Rank";
+import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
+import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
+import "./App.css";
 
 function App() {
   const [inputLink, setInputLink] = useState("");
@@ -57,11 +57,12 @@ function App() {
     }
   };
 
+  // Display Face Box
   const displayFaceBox = (box) => {
     setBox(box);
   };
 
-  // Submit
+  // onSubmit
   const onButtonSubmit = () => {
     setImageUrl(inputLink);
 
