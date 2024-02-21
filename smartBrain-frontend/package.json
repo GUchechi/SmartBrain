@@ -15,6 +15,7 @@
     "react-dom": "^18.2.0",
     "react-particles": "^2.12.2",
     "react-tilt": "^1.0.2",
+    "react-toastify": "^10.0.4",
     "tachyons": "^4.12.0",
     "tsparticles": "^3.2.1",
     "tsparticles-slim": "^2.12.0"

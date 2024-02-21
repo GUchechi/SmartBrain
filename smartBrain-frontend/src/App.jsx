@@ -7,6 +7,8 @@ import { useCallback, useState } from "react";
 import Particles from "react-particles";
 import { loadSlim } from "tsparticles-slim";
 import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const [inputLink, setInputLink] = useState("");
@@ -38,14 +40,19 @@ function App() {
       const width = Number(image.width);
       const height = Number(image.height);
 
-      return {
+      const faceLocation = {
         leftCol: clarifaiFace.left_col * width,
         topRow: clarifaiFace.top_row * height,
         rightCol: width - clarifaiFace.right_col * width,
         bottomRow: height - clarifaiFace.bottom_row * height,
       };
+
+      // Display success message if face is detected
+      toast.success("Face detected successfully");
+
+      return faceLocation;
     } else {
-      console.log("No face detected in the data");
+      toast.error("No face detected in the data");
       return {}; // Return an empty object if no face is detected
     }
   };
@@ -232,6 +239,7 @@ function App() {
         inputLink={inputLink}
       />
       <FaceRecognition box={box} imageUrl={imageUrl} />
+      <ToastContainer />
     </div>
   );
 }
