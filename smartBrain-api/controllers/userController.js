@@ -1,10 +1,48 @@
 import asyncHandler from "express-async-handler";
+import bcrypt from "bcryptjs";
+import User from "../models/userModel.js";
 
 // @desc    Register a new user
 // @route   POST /api/users
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-  res.send("register user");
+  const { name, email, password } = req.body;
+
+  // Validate input
+  if (!name || !email || !password) {
+    res.status(400);
+    throw new Error("Name, email, and password are required");
+  }
+
+  // Check if user already exists
+  const userExists = await User.findOne({ email });
+  if (userExists) {
+    res.status(400);
+    throw new Error("User already exists");
+  }
+
+  // Hash the password
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  // Create the new user
+  try {
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
+
+    res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+    });
+  } catch (error) {
+    // Handle database errors or other unexpected errors
+    console.error(error);
+    res.status(500);
+    throw new Error("Internal Server Error");
+  }
 });
 
 // @desc    Auth user & get token

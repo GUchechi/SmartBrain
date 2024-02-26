@@ -12,6 +12,11 @@ const port = process.env.PORT || 5000;
 
 const app = express();
 
+// Request Body Parser Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Routes
 app.get('/', (req, res) => res.send('API running'));
 
 app.use('/api/users', userRoutes);
