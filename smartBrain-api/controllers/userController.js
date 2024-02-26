@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import bcrypt from "bcryptjs";
 import User from "../models/userModel.js";
+import generateToken from "../utils/generateToken.js";
 
 // @desc    Register a new user
 // @route   POST /api/users
@@ -11,7 +12,7 @@ const registerUser = asyncHandler(async (req, res) => {
   // Validate input
   if (!name || !email || !password) {
     res.status(400);
-    throw new Error("Name, email, and password are required");
+    throw new Error("Name, email, and password are all required");
   }
 
   // Check if user already exists
@@ -32,10 +33,14 @@ const registerUser = asyncHandler(async (req, res) => {
       password: hashedPassword,
     });
 
+    // Generate token
+    const token = generateToken(user._id);
+
     res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
+      token,
     });
   } catch (error) {
     // Handle database errors or other unexpected errors
@@ -49,7 +54,34 @@ const registerUser = asyncHandler(async (req, res) => {
 // @route   POST /api/users/auth
 // @access  Public
 const authUser = asyncHandler(async (req, res) => {
-  res.json({ message: "Success" });
+  const { email, password } = req.body;
+
+  // Validate input
+  if (!email || !password) {
+    return res.status(400).json({ error: "All fields are mandatory!" });
+  }
+
+  try {
+    // Check if user exists
+    const user = await User.findOne({ email });
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      // Successful authentication
+      return res.status(200).json({
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+        token: generateToken(user._id),
+      });
+    } else {
+      // Authentication failed
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+  } catch (error) {
+    // Handle unexpected errors
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
 // @desc    Logout user / clear cookie
