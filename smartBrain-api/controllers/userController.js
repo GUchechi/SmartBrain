@@ -152,4 +152,59 @@ const imageEntry = asyncHandler(async (req, res) => {
   }
 });
 
-export { authUser, registerUser, logoutUser, getUserProfile, imageEntry };
+// @desc    Update user profile
+// @route   PUT /api/users/:id
+// @access  Private
+const updateUserProfile = asyncHandler(async (req, res) => {
+  const userId = req.params.userId;
+  const { name, password } = req.body;
+
+  // Validate if the provided ID is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: "Invalid user ID" });
+  }
+
+  try {
+    // Find the user by ID
+    const user = await User.findById(userId);
+
+    // If user not found, return a 404 error
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update user's name if provided
+    if (name) {
+      user.name = name;
+    }
+
+    // Update user's password if provided
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
+    }
+
+    // Save the updated user in the database
+    await user.save();
+
+    // Respond with the updated user
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+    });
+  } catch (error) {
+    // Handle database errors or other unexpected errors
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+export {
+  authUser,
+  registerUser,
+  logoutUser,
+  getUserProfile,
+  imageEntry,
+  updateUserProfile,
+};
