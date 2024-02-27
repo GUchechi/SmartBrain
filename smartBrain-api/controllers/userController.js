@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 import asyncHandler from "express-async-handler";
 import bcrypt from "bcryptjs";
 import User from "../models/userModel.js";
@@ -93,7 +93,7 @@ const logoutUser = (req, res) => {
 };
 
 // @desc    Get user profile
-// @route   GET /api/users/profile
+// @route   GET /api/users/:id
 // @access  Private
 const getUserProfile = asyncHandler(async (req, res) => {
   const userId = req.params.userId;
@@ -115,13 +115,18 @@ const getUserProfile = asyncHandler(async (req, res) => {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
-}); 
+});
 
 // @desc    App Entries
 // @route   PUT /api/users/image
 // @access  Private
 const imageEntry = asyncHandler(async (req, res) => {
-  const userId = req.params.userId;
+  const { userId } = req.body;
+
+  // Validate if the provided ID is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: "Invalid user ID" });
+  }
 
   try {
     // Find the user by ID

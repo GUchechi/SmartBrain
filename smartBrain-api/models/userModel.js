@@ -17,6 +17,10 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Password is required"],
     },
+    entries: {
+      type: Number,
+      default: 0, // Default value for entries is 0
+    },
   },
   {
     timestamps: true,
