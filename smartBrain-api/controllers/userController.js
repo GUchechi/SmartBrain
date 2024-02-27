@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import asyncHandler from "express-async-handler";
 import bcrypt from "bcryptjs";
 import User from "../models/userModel.js";
@@ -97,15 +98,16 @@ const logoutUser = (req, res) => {
 const getUserProfile = asyncHandler(async (req, res) => {
   const userId = req.params.userId;
 
+  // Validate if the provided ID is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: "Invalid user ID" });
+  }
+
   try {
     const user = await User.findById(userId);
 
     if (user) {
-      res.status(200).json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-      });
+      res.status(200).json(user);
     } else {
       res.status(404).json({ message: "User not found" });
     }
@@ -113,17 +115,17 @@ const getUserProfile = asyncHandler(async (req, res) => {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
-});
+}); 
 
 // @desc    App Entries
 // @route   PUT /api/users/image
 // @access  Private
 const imageEntry = asyncHandler(async (req, res) => {
-  const { id } = req.body;
+  const userId = req.params.userId;
 
   try {
     // Find the user by ID
-    const user = await User.findById(id);
+    const user = await User.findById(userId);
 
     // If user not found, return a 404 error
     if (!user) {
