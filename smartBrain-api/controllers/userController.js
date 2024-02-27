@@ -95,34 +95,54 @@ const logoutUser = (req, res) => {
 // @route   GET /api/users/profile
 // @access  Private
 const getUserProfile = asyncHandler(async (req, res) => {
-  const user = {
-    _id: req.user._id,
-    name: req.user.name,
-    email: req.user.email,
-  };
+  const userId = req.params.userId;
 
-  res.status(200).json(user);
-});
+  try {
+    const user = await User.findById(userId);
 
-// @desc    Update user profile
-// @route   PUT /api/users/profile
-// @access  Private
-const updateUserProfile = asyncHandler(async (req, res) => {
-  res.send("update profile");
+    if (user) {
+      res.status(200).json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+      });
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
 // @desc    App Entries
 // @route   PUT /api/users/image
 // @access  Private
 const imageEntry = asyncHandler(async (req, res) => {
-  res.send("Image Entry");
+  const { id } = req.body;
+
+  try {
+    // Find the user by ID
+    const user = await User.findById(id);
+
+    // If user not found, return a 404 error
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Increment the user's entries
+    user.entries++;
+
+    // Save the updated user in the database
+    await user.save();
+
+    // Respond with the updated number of entries
+    res.json(user.entries);
+  } catch (error) {
+    // Handle database errors or other unexpected errors
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
-export {
-  authUser,
-  registerUser,
-  logoutUser,
-  getUserProfile,
-  updateUserProfile,
-  imageEntry,
-};
+export { authUser, registerUser, logoutUser, getUserProfile, imageEntry };

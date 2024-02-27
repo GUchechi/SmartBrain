@@ -6,7 +6,6 @@ import {
   registerUser,
   logoutUser,
   getUserProfile,
-  updateUserProfile,
   imageEntry,
 } from "../controllers/userController.js";
 
@@ -15,10 +14,7 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/auth", authUser);
 router.post("/logout", logoutUser);
-router.post("/image", imageEntry);
-router
-  .route("/profile")
-  .get(protect, getUserProfile)
-  .put(protect, updateUserProfile);
+router.post("/image", protect, imageEntry);
+router.route("/:userId").get(getUserProfile);
 
 export default router;
