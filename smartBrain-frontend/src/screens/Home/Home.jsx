@@ -4,7 +4,6 @@ import { loadSlim } from "tsparticles-slim";
 import Particles from "react-particles";
 import Navigation from "../../components/Navigation/Navigation";
 import Logo from "../../components/Logo/Logo";
-import Rank from "../../components/Rank/Rank";
 import ImageLinkForm from "../../components/ImageLinkForm/ImageLinkForm";
 import FaceRecognition from "../../components/FaceRecognition/FaceRecognition";
 import "./Home.css";
@@ -232,7 +231,6 @@ function Home() {
       />
       <Navigation />
       <Logo />
-      <Rank />
       <ImageLinkForm
         onInputChange={onInputChange}
         onButtonSubmit={onButtonSubmit}
