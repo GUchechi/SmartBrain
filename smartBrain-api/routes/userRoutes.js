@@ -17,7 +17,7 @@ router.post("/auth", authUser);
 router.post("/logout", logoutUser);
 router.put("/image", imageEntry);
 router
-  .route("/:userId")
+  .route("/profile")
   .get(protect, getUserProfile)
   .put(protect, updateUserProfile);
 

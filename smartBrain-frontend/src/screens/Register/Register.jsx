@@ -1,5 +1,10 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { useRegisterMutation } from "../../slices/usersApiSlice";
+import { setCredentials } from "../../slices/authSlice";
+import Loader from "../../components/Loader/Loader";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -11,11 +16,35 @@ const Register = () => {
 
   const { name, email, password, confirmPassword } = formData;
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [register, { isLoading }] = useRegisterMutation();
+
+  const { userInfo } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (userInfo) {
+      navigate("/");
+    }
+  }, [navigate, userInfo]);
+
   const submitHandler = async (e) => {
     e.preventDefault();
-    console.log("submit");
-  };
 
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+    } else {
+      try {
+        const res = await register({ name, email, password }).unwrap();
+        dispatch(setCredentials({ ...res }));
+        toast.success('Registration successful')
+        navigate("/");
+      } catch (err) {
+        toast.error(err?.data?.message || err.error);
+      }
+    }
+  };
   const onChange = (e) => {
     setFormData((prevState) => ({
       ...prevState,
@@ -99,6 +128,8 @@ const Register = () => {
             >
               Register
             </button>
+
+            {isLoading && <Loader />}
 
             <div className="lh-copy mt3">
               <span>Already have an account?</span>

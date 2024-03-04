@@ -15,12 +15,18 @@ import Home from "./screens/Home/Home.jsx";
 import store from "./store.js";
 import { Provider } from "react-redux";
 
+import PrivateRoute from "./components/PrivateRoute.jsx";
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/" element={<Home />} />
+
+      {/* Private Routes */}
+      <Route path="" element={<PrivateRoute />}>
+        <Route path="/" element={<Home />} />
+      </Route>
     </Route>
   )
 );

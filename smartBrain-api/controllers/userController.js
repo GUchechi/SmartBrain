@@ -35,13 +35,12 @@ const registerUser = asyncHandler(async (req, res) => {
     });
 
     // Generate token
-    const token = generateToken(user._id);
+    generateToken(res, user._id);
 
     res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
-      token,
     });
   } catch (error) {
     // Handle database errors or other unexpected errors
@@ -59,29 +58,37 @@ const authUser = asyncHandler(async (req, res) => {
 
   // Validate input
   if (!email || !password) {
-    return res.status(400).json({ error: "All fields are mandatory!" });
+    res.status(400);
+    throw new Error("All fields are mandatory!");
   }
 
   try {
     // Check if user exists
     const user = await User.findOne({ email });
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-      // Successful authentication
-      return res.status(200).json({
-        _id: user.id,
-        name: user.name,
-        email: user.email,
-        token: generateToken(user._id),
-      });
-    } else {
-      // Authentication failed
-      return res.status(401).json({ error: "Invalid credentials" });
+    if (user) {
+      // Compare passwords
+      const passwordMatch = await bcrypt.compare(password, user.password);
+
+      if (passwordMatch) {
+        // Passwords match, generate token
+        generateToken(res, user._id);
+
+        // Successful authentication
+        return res.status(200).json({
+          _id: user.id,
+          name: user.name,
+          email: user.email,
+        });
+      }
     }
+
+    // Authentication failed (either user not found or passwords don't match)
+    res.status(401).json({ message: "Invalid email or password" });
   } catch (error) {
     // Handle unexpected errors
     console.error(error);
-    return res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -156,47 +163,28 @@ const imageEntry = asyncHandler(async (req, res) => {
 // @route   PUT /api/users/:id
 // @access  Private
 const updateUserProfile = asyncHandler(async (req, res) => {
-  const userId = req.params.userId;
-  const { name, password } = req.body;
+  const user = await User.findById(req.user._id);
 
-  // Validate if the provided ID is a valid ObjectId
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    return res.status(400).json({ message: "Invalid user ID" });
-  }
+  if (user) {
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
 
-  try {
-    // Find the user by ID
-    const user = await User.findById(userId);
-
-    // If user not found, return a 404 error
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // Update user's name if provided
-    if (name) {
-      user.name = name;
-    }
-
-    // Update user's password if provided
-    if (password) {
-      const hashedPassword = await bcrypt.hash(password, 10);
+    if (req.body.password) {
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(req.body.password, 10);
       user.password = hashedPassword;
     }
 
-    // Save the updated user in the database
-    await user.save();
+    const updatedUser = await user.save();
 
-    // Respond with the updated user
     res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
     });
-  } catch (error) {
-    // Handle database errors or other unexpected errors
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+  } else {
+    res.status(404);
+    throw new Error("User not found");
   }
 });
 

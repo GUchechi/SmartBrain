@@ -17,21 +17,25 @@ const Login = () => {
 
   const { userInfo } = useSelector((state) => state.auth);
 
+  // Redirect to Home page
   useEffect(() => {
     if (userInfo) {
       navigate("/");
     }
   }, [navigate, userInfo]);
 
+  // Submit form
   const submitHandler = async (e) => {
     e.preventDefault();
 
     try {
       const res = await login({ email, password }).unwrap();
       dispatch(setCredentials({ ...res }));
+      toast.success('Login successful')
       navigate("/");
     } catch (err) {
-      toast.error(err?.data?.error);
+      toast.error(err?.data?.message || err.error);
+
     }
   };
 
