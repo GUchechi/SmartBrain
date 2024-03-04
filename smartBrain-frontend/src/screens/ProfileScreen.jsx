@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setCredentials } from "../slices/authSlice";
 import { useUpdateUserMutation } from "../slices/usersApiSlice";
@@ -17,6 +18,7 @@ const ProfileScreen = () => {
   const [updateProfile, { isLoading }] = useUpdateUserMutation();
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (userInfo) {
@@ -27,6 +29,12 @@ const ProfileScreen = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
 
+    // Check if any field is empty
+    if (!name.trim() || !email.trim()) {
+      toast.error("All fields are mandatory");
+      return;
+    }
+
     try {
       const res = await updateProfile({
         _id: userInfo._id,
@@ -35,6 +43,7 @@ const ProfileScreen = () => {
       }).unwrap();
       dispatch(setCredentials({ ...res }));
       toast.success("Profile updated successfully");
+      navigate("/");
     } catch (err) {
       toast.error(err?.data?.message || err.error);
     }
@@ -80,7 +89,7 @@ const ProfileScreen = () => {
                 </label>
                 <input
                   disabled
-                  className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
+                  className="pa2 input-reset ba bg-transparent hover-bg-black black hover-white w-100"
                   type="email"
                   name="email"
                   id="email-address"

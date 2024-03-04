@@ -22,6 +22,9 @@ const Navigation = () => {
 
   return (
     <nav style={{ display: "flex", justifyContent: "flex-end" }}>
+      <Link to={`/profile`} className="f3 link dim black underline pa3 pointer">
+        Profile
+      </Link>
       <Link
         onClick={logoutHandler}
         className="f3 link dim black underline pa3 pointer"
